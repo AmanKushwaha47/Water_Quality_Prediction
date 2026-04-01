@@ -99,4 +99,4 @@ This project is pre-configured with `Dockerfiles` optimized for Render's environ
 - Dataset source: Waterborne Disease Records (Regional Health Department).
 
 ---
-*Developed by Aashutosh & Empowered by AI.*
+
