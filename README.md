@@ -1,6 +1,5 @@
 # 💧 AquaGuard AI: Water-Borne Disease Prediction System
 
-![AquaGuard AI Banner](https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2070)
 
 ### 🛡️ AI-Powered Early Warning Surveillance
 AquaGuard AI is a sophisticated full-stack surveillance system designed to forecast water-borne disease outbreaks (specifically **Cholera** and **Typhoid**) with up to 88% accuracy. By analyzing environmental, meteorological, and water quality parameters, the system provides health authorities with a **1–3 week lead time** to implement life-saving preventive measures.
