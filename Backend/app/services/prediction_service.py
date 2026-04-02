@@ -78,6 +78,41 @@ class PredictionService:
             }
         }
 
+    def _heuristic_outbreak_score(self, input_data: dict) -> float:
+        # Convert obvious high-risk environmental patterns into a normalized severity score.
+        score = 0.0
+
+        water_source = str(input_data.get("water_source", "")).strip().lower()
+        water_treatment = str(input_data.get("water_treatment", "")).strip().lower()
+        is_urban = int(input_data.get("is_urban", 0))
+        flooding = int(input_data.get("flooding", 0))
+        population_density = float(input_data.get("population_density", 0.0))
+        ph = float(input_data.get("ph", 7.0))
+        avg_temperature_c = float(input_data.get("avg_temperature_c", 25.0))
+        avg_rainfall_mm = float(input_data.get("avg_rainfall_mm", 0.0))
+        avg_humidity_pct = float(input_data.get("avg_humidity_pct", 0.0))
+
+        if water_source in {"river", "open well", "pond"}:
+            score += 0.18
+        if water_treatment in {"untreated", "none"}:
+            score += 0.22
+        if flooding == 1:
+            score += 0.18
+        if population_density >= 1000:
+            score += 0.12
+        if avg_rainfall_mm >= 140:
+            score += 0.12
+        if avg_humidity_pct >= 75:
+            score += 0.08
+        if avg_temperature_c >= 30:
+            score += 0.06
+        if ph < 6.5 or ph > 8.5:
+            score += 0.08
+        if is_urban == 1 and population_density >= 1500:
+            score += 0.06
+
+        return float(min(max(score, 0.0), 1.0))
+
     def load_artifacts(self):
         if os.path.exists(MODEL_PATH) and os.path.exists(ENCODERS_PATH):
             self.model = joblib.load(MODEL_PATH)
@@ -106,9 +141,11 @@ class PredictionService:
         X = df[self.features]
 
         # Predict
-        prediction = self.model.predict(X)[0]
-        probability = self.model.predict_proba(X)[0][1]
-        disease_result = self._predict_disease(input_data, int(prediction), float(probability))
+        model_probability = float(self.model.predict_proba(X)[0][1])
+        heuristic_probability = self._heuristic_outbreak_score(input_data)
+        probability = float(max(model_probability, heuristic_probability))
+        prediction = 1 if probability >= 0.5 else 0
+        disease_result = self._predict_disease(input_data, int(prediction), probability)
 
         return {
             "prediction": int(prediction),
