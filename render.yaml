@@ -12,8 +12,9 @@ services:
       - key: FRONTEND_URL
         sync: false
 
-  - type: static_site
+  - type: web
     name: water-quality-frontend
+    env: static
     rootDir: Frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
