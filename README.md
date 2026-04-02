@@ -88,6 +88,17 @@ The model is trained on a comprehensive dataset encompassing:
 
 This project is pre-configured with `Dockerfiles` optimized for Render's environment variable system.
 
+### Quick Deploy (Recommended)
+1. Push this repository to GitHub.
+2. In Render, choose **New +** -> **Blueprint** and select this repo.
+3. Render will read `render.yaml` and create:
+   - `water-quality-backend` (Docker Web Service)
+   - `water-quality-frontend` (Static Site)
+4. Set environment variables in Render dashboard:
+   - Frontend: `VITE_API_URL` = your backend URL (for example `https://water-quality-backend.onrender.com`)
+   - Backend: `FRONTEND_URL` = your frontend URL (for example `https://water-quality-frontend.onrender.com`)
+5. Redeploy both services once after setting env vars.
+
 1. **Backend:** Deploy `Backend/` as a **Web Service**. Set environment variable `PORT` to bind dynamically.
 2. **Frontend:** Deploy `Frontend/` as a **Static Site**. Set `VITE_API_URL` to point to your backend.
 
