@@ -16,8 +16,10 @@ export interface PredictionResponse {
   risk_label: string;
 }
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
 export const predictOutbreak = async (data: PredictionRequest): Promise<PredictionResponse> => {
-  const response = await fetch('/api/predict', {
+  const response = await fetch(`${API_BASE_URL}/api/predict`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
