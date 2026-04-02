@@ -66,6 +66,12 @@ export const PredictionForm: React.FC = () => {
               <p className="text-muted-foreground mt-2">
                 Outbreak Probability: {(result.probability * 100).toFixed(1)}%
               </p>
+              <p className="text-muted-foreground mt-2">
+                Likely Disease: <span className="font-semibold text-foreground">{result.likely_disease}</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Cholera: {(result.disease_probabilities.cholera * 100).toFixed(1)}% | Typhoid: {(result.disease_probabilities.typhoid * 100).toFixed(1)}%
+              </p>
             </div>
           </div>
         ) : (

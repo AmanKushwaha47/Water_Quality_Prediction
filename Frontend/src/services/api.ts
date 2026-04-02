@@ -14,6 +14,11 @@ export interface PredictionResponse {
   prediction: number;
   probability: number;
   risk_label: string;
+  likely_disease: string;
+  disease_probabilities: {
+    cholera: number;
+    typhoid: number;
+  };
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');

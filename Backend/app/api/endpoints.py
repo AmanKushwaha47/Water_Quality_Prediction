@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Dict
 from app.services.prediction_service import prediction_service
 
 router = APIRouter()
@@ -19,6 +20,8 @@ class PredictionResponse(BaseModel):
     prediction: int
     probability: float
     risk_label: str
+    likely_disease: str
+    disease_probabilities: Dict[str, float]
     error: str = None
 
 @router.post("/predict", response_model=PredictionResponse)

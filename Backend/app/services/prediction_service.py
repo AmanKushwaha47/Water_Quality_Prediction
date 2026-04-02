@@ -20,6 +20,64 @@ class PredictionService:
         ]
         self.load_artifacts()
 
+    def _predict_disease(self, input_data: dict, outbreak_prediction: int, outbreak_probability: float) -> dict:
+        # Rule-based disease scoring to provide interpretable guidance from environmental signals.
+        cholera_score = 0.0
+        typhoid_score = 0.0
+
+        water_source = str(input_data.get("water_source", "")).strip().lower()
+        water_treatment = str(input_data.get("water_treatment", "")).strip().lower()
+        is_urban = int(input_data.get("is_urban", 0))
+        flooding = int(input_data.get("flooding", 0))
+        population_density = float(input_data.get("population_density", 0.0))
+        ph = float(input_data.get("ph", 7.0))
+        avg_temperature_c = float(input_data.get("avg_temperature_c", 25.0))
+        avg_rainfall_mm = float(input_data.get("avg_rainfall_mm", 0.0))
+        avg_humidity_pct = float(input_data.get("avg_humidity_pct", 0.0))
+
+        if water_source in {"river", "well", "surface"}:
+            cholera_score += 2.0
+        if water_treatment in {"untreated", "none"}:
+            cholera_score += 2.0
+            typhoid_score += 1.0
+        if flooding == 1:
+            cholera_score += 2.0
+        if avg_rainfall_mm >= 120:
+            cholera_score += 1.0
+        if avg_temperature_c >= 30:
+            cholera_score += 1.0
+        if ph < 6.5 or ph > 8.5:
+            cholera_score += 1.0
+
+        if population_density >= 1000:
+            typhoid_score += 2.0
+        if is_urban == 1:
+            typhoid_score += 1.0
+        if avg_humidity_pct >= 70:
+            typhoid_score += 1.0
+        if 20 <= avg_temperature_c <= 35:
+            typhoid_score += 1.0
+
+        logits = np.array([cholera_score, typhoid_score], dtype=float)
+        exp_logits = np.exp(logits - np.max(logits))
+        normalized = exp_logits / exp_logits.sum()
+
+        cholera_probability = float(normalized[0] * outbreak_probability)
+        typhoid_probability = float(normalized[1] * outbreak_probability)
+
+        if outbreak_prediction == 0 and outbreak_probability < 0.5:
+            likely_disease = "No Significant Disease Risk"
+        else:
+            likely_disease = "Cholera" if cholera_probability >= typhoid_probability else "Typhoid"
+
+        return {
+            "likely_disease": likely_disease,
+            "disease_probabilities": {
+                "cholera": cholera_probability,
+                "typhoid": typhoid_probability
+            }
+        }
+
     def load_artifacts(self):
         if os.path.exists(MODEL_PATH) and os.path.exists(ENCODERS_PATH):
             self.model = joblib.load(MODEL_PATH)
@@ -50,11 +108,14 @@ class PredictionService:
         # Predict
         prediction = self.model.predict(X)[0]
         probability = self.model.predict_proba(X)[0][1]
+        disease_result = self._predict_disease(input_data, int(prediction), float(probability))
 
         return {
             "prediction": int(prediction),
             "probability": float(probability),
-            "risk_label": "High Risk" if prediction == 1 else "Low Risk"
+            "risk_label": "High Risk" if prediction == 1 else "Low Risk",
+            "likely_disease": disease_result["likely_disease"],
+            "disease_probabilities": disease_result["disease_probabilities"]
         }
 
 # Singleton instance
