@@ -37,8 +37,8 @@ The model is trained on a comprehensive dataset encompassing:
 ### Local Launch (Docker)
 1. **Clone the Project:**
    ```bash
-   git clone https://github.com/Aashutosh-357/waterborne-disease-prediction.git
-   cd waterborne-disease-prediction
+   git clone https://github.com/AmanKushwaha47/Water_Quality_Prediction.git
+   cd Water_Quality_Prediction
    ```
 
 2. **One-Command Boot:**
